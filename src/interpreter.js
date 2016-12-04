@@ -4,6 +4,10 @@ let {
     map, reduce
 } = require('bolzano');
 
+let {
+    funType, isObject
+} = require('basetype');
+
 /**
  * used to interpret lambda json
  *
@@ -31,9 +35,14 @@ let {
  *  a map of predicates
  */
 
+let error = (msg, json) => {
+    throw new Error(msg + ' . Context json is ' + JSON.stringify(json));
+};
+
 module.exports = (predicateSet) => {
     return (data) => {
-        let translate = (json, ctx) => {
+        // TODO check data format
+        let translate = funType((json, ctx) => {
             let translateWithCtx = (data) => {
                 return translate(data, ctx);
             };
@@ -50,7 +59,7 @@ module.exports = (predicateSet) => {
                         context = context.parentCtx;
                     }
 
-                    throw new Error(`unexpected variable ${json[1]}`);
+                    return error(`undefined variable ${json[1]}`, json);
                 case 'l': // subtraction
                     return (...args) => {
                         // update variable map
@@ -66,8 +75,12 @@ module.exports = (predicateSet) => {
                     return predicateSet[json[1]](...map(json[2], translateWithCtx));
                 case 'a': // application
                     return translateWithCtx(json[1])(...map(json[2], translateWithCtx));
+                default:
+                    return error(`unexpected type ${json[0]}`, json);
             }
-        };
+        }, [
+            isObject, isObject
+        ]);
 
         return translate(data, {
             curVars: {}

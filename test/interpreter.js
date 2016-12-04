@@ -111,4 +111,41 @@ describe('interpreter', () => {
                 )
             ), 17);
     });
+
+    it('error variable', () => {
+        let add = c.require('add');
+        let run = interpreter({
+            add: (x, y) => x + y
+        });
+
+        try {
+            run(
+                getJson(
+                    r('x',
+                        add(v('y'), 1)
+                    )(10)
+                )
+            );
+
+            assert.equal(true, false);
+        } catch (err) {
+            assert.equal(err.toString().indexOf('undefined variable y') !== -1, true);
+        }
+    });
+
+    it('unexpected type', () => {
+        let run = interpreter({
+            add: (x, y) => x + y
+        });
+
+        try {
+            run(
+                ['k']
+            );
+
+            assert.equal(true, false);
+        } catch (err) {
+            assert.equal(err.toString().indexOf('unexpected type k') !== -1, true);
+        }
+    });
 });

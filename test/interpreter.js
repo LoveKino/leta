@@ -187,4 +187,20 @@ describe('interpreter', () => {
             assert.equal(err.toString().indexOf('expected function') !== -1, true);
         }
     });
+
+    it('high order function', () => {
+        let run = interpreter({
+            add: (x, y) => x + y
+        });
+
+        let add = c.require('add');
+
+        assert.equal(
+            run(
+                getJson(
+                    r('x', r('y', add(v('x'), v('y'))))(3)(4)
+                )
+            ), 7
+        );
+    });
 });

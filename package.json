@@ -1,6 +1,6 @@
 {
   "name": "leta",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "lambda json parser and interpreter",
   "main": "index.js",
   "scripts": {

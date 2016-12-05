@@ -24,7 +24,8 @@
   "homepage": "https://github.com/LoveKino/leta#readme",
   "dependencies": {
     "basetype": "^0.1.2",
-    "bolzano": "0.0.3"
+    "bolzano": "0.0.3",
+    "jsenhance": "0.0.2"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",

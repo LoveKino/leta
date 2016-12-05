@@ -148,4 +148,43 @@ describe('interpreter', () => {
             assert.equal(err.toString().indexOf('unexpected type k') !== -1, true);
         }
     });
+
+    it('misssing predicate', () => {
+        let run = interpreter({});
+
+        let add = c.require('add');
+
+        try {
+            run(
+                getJson(
+                    add(2, 3)
+                )
+            );
+
+            assert.equal(true, false);
+        } catch (err) {
+            assert.equal(err.toString().indexOf('missing predicate add') !== -1, true);
+        }
+    });
+
+    it('misssing predicate', () => {
+        let run = interpreter({});
+
+        try {
+            run(
+                [
+                    'a', [
+                        'd', 3,
+                    ],
+                    [
+                        ['d', 1]
+                    ]
+                ]
+            );
+
+            assert.equal(true, false);
+        } catch (err) {
+            assert.equal(err.toString().indexOf('expected function') !== -1, true);
+        }
+    });
 });

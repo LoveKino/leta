@@ -86,11 +86,11 @@ let exp = (json) => {
 /**
  * import predicate
  */
-let requirePredicate = (name) => (...args) => {
+let requirePredicate = (name = '') => (...args) => {
     /**
      * predicate
      */
-    return exp(['p', name, map(args, getJson)]);
+    return exp(['p', name.trim(), map(args, getJson)]);
 };
 
 /**

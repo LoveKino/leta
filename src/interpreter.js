@@ -9,7 +9,7 @@ let {
 } = require('basetype');
 
 let {
-    hasOwnProperty
+    hasOwnProperty, get
 } = require('jsenhance');
 
 /**
@@ -74,7 +74,7 @@ module.exports = (predicateSet) => {
                         });
                     };
                 case 'p': // predicate
-                    var predicate = predicateSet[json[1]];
+                    var predicate = get(predicateSet, json[1]);
                     if (!isFunction(predicate)) {
                         return error(`missing predicate ${json[1]}`);
                     }

@@ -203,4 +203,23 @@ describe('interpreter', () => {
             ), 7
         );
     });
+
+    it('map path', () => {
+        let run = interpreter({
+            math: {
+                add: (x, y) => x + y
+            }
+        });
+
+        let add = c.require('math.add');
+
+        assert.equal(
+            run(
+                getJson(
+                    add(3, 4)
+                )
+            ), 7
+        );
+    });
+
 });

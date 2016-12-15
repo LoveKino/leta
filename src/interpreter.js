@@ -29,6 +29,7 @@ let {
  * l: abstraction
  * p: predicate
  * a: application
+ * f: predicate as variable
  *
  * TODO
  *
@@ -85,6 +86,12 @@ module.exports = (predicateSet) => {
                         return error(`expected function, but got ${subtraction} from ${json[1]}.`);
                     }
                     return subtraction(...map(json[2], translateWithCtx));
+                case 'f': // predicate as a variable
+                    var fun = get(predicateSet, json[1]);
+                    if (!isFunction(fun)) {
+                        return error(`missing predicate ${json[1]}`);
+                    }
+                    return fun;
                 default:
                     return error(`unexpected type ${json[0]}`);
             }

@@ -96,6 +96,38 @@ describe('interpreter', () => {
             ), [2, 3, 4]);
     });
 
+    it('map predicate', () => {
+        let addOne = c.require('addOne');
+        let myMap = c.require('myMap');
+        let run = interpreter({
+            addOne: (x) => x + 1,
+            myMap: map
+        });
+
+        assert.deepEqual(
+            run(
+                getJson(
+                    myMap([1, 2, 3], addOne)
+                )
+            ), [2, 3, 4]);
+    });
+
+    it('predicate as variable', () => {
+        let addOne = c.require('addOne');
+        let id = c.require('id');
+        let run = interpreter({
+            addOne: (x) => x + 1,
+            id: v => v
+        });
+
+        assert.deepEqual(
+            run(
+                getJson(
+                    id(addOne)(2)
+                )
+            ), 3);
+    });
+
     it('parent context', () => {
         let add = c.require('add');
         let run = interpreter({
@@ -188,6 +220,25 @@ describe('interpreter', () => {
         }
     });
 
+    it('missing predicate', () => {
+        let addOne = c.require('addOne');
+        let myMap = c.require('myMap');
+        let run = interpreter({
+            myMap: map
+        });
+
+        try {
+            run(
+                getJson(
+                    myMap([1, 2, 3], addOne)
+                )
+            );
+            assert.equal(true, false);
+        } catch (err) {
+            assert.equal(err.toString().indexOf('missing predicate add') !== -1, true);
+        }
+    });
+
     it('high order function', () => {
         let run = interpreter({
             add: (x, y) => x + y
@@ -221,5 +272,4 @@ describe('interpreter', () => {
             ), 7
         );
     });
-
 });

@@ -86,11 +86,17 @@ let exp = (json) => {
 /**
  * import predicate
  */
-let requirePredicate = (name = '') => (...args) => {
-    /**
-     * predicate
-     */
-    return exp(['p', name.trim(), map(args, getJson)]);
+let requirePredicate = (name = '') => {
+    let predicate = (...args) => {
+        /**
+         * predicate
+         */
+        return exp(['p', name.trim(), map(args, getJson)]);
+    };
+    predicate.unique = unique;
+    predicate.json = ['f', name];
+
+    return predicate;
 };
 
 /**

@@ -12,6 +12,17 @@ let {
     hasOwnProperty, get
 } = require('jsenhance');
 
+let {
+    APPLICATION_PREFIX,
+    PREDICATE_PREFIX,
+    PREDICATE_VARIABLE_PREFIX,
+    VARIABLE_PREFIX,
+    META_DATA_PREFIX,
+    ABSTRACTION_PREFIX,
+
+    desctruct
+} = require('./dsl');
+
 /**
  * used to interpret lambda json
  *
@@ -50,50 +61,69 @@ module.exports = (predicateSet) => {
                 throw new Error(msg + ' . Context json is ' + JSON.stringify(json));
             };
 
-            switch (json[0]) {
-                case 'd': // meta data
-                    return json[1];
-                case 'v': // variable
+            let {
+                type,
+                metaData,
+
+                variableName,
+
+                predicateName,
+                predicateParams,
+
+                abstractionArgs,
+                abstractionBody,
+
+                applicationFun,
+                applicationParams
+            } = desctruct(json);
+
+            switch (type) {
+                case META_DATA_PREFIX: // meta data
+                    return metaData;
+
+                case VARIABLE_PREFIX: // variable
                     var context = ctx;
                     while (context) {
-                        if (hasOwnProperty(context.curVars, json[1])) {
-                            return context.curVars[json[1]];
+                        if (hasOwnProperty(context.curVars, variableName)) {
+                            return context.curVars[variableName];
                         }
                         context = context.parentCtx;
                     }
 
-                    return error(`undefined variable ${json[1]}`);
-                case 'l': // subtraction
+                    return error(`undefined variable ${variableName}`);
+
+                case ABSTRACTION_PREFIX: // abstraction
                     return (...args) => {
                         // update variable map
-                        return translate(json[2], {
-                            curVars: reduce(json[1], (prev, name, index) => {
+                        return translate(abstractionBody, {
+                            curVars: reduce(abstractionArgs, (prev, name, index) => {
                                 prev[name] = args[index];
                                 return prev;
                             }, {}),
                             parentCtx: ctx
                         });
                     };
-                case 'p': // predicate
-                    var predicate = get(predicateSet, json[1]);
+
+                case PREDICATE_PREFIX: // predicate
+                    var predicate = get(predicateSet, predicateName);
                     if (!isFunction(predicate)) {
-                        return error(`missing predicate ${json[1]}`);
+                        return error(`missing predicate ${predicateName}`);
                     }
-                    return predicate(...map(json[2], translateWithCtx));
-                case 'a': // application
-                    var subtraction = translateWithCtx(json[1]);
-                    if (!isFunction(subtraction)) {
-                        return error(`expected function, but got ${subtraction} from ${json[1]}.`);
+                    return predicate(...map(predicateParams, translateWithCtx));
+
+                case APPLICATION_PREFIX: // application
+                    var abstraction = translateWithCtx(applicationFun);
+                    if (!isFunction(abstraction)) {
+                        return error(`expected function, but got ${fun} from ${applicationFun}.`);
                     }
-                    return subtraction(...map(json[2], translateWithCtx));
-                case 'f': // predicate as a variable
-                    var fun = get(predicateSet, json[1]);
+                    return abstraction(...map(applicationParams, translateWithCtx));
+
+                case PREDICATE_VARIABLE_PREFIX: // predicate as a variable
+                    var fun = get(predicateSet, predicateName);
                     if (!isFunction(fun)) {
-                        return error(`missing predicate ${json[1]}`);
+                        return error(`missing predicate ${predicateName}`);
                     }
                     return fun;
-                default:
-                    return error(`unexpected type ${json[0]}`);
             }
         }, [
             isObject, isObject

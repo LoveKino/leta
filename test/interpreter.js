@@ -177,7 +177,7 @@ describe('interpreter', () => {
 
             assert.equal(true, false);
         } catch (err) {
-            assert.equal(err.toString().indexOf('unexpected type k') !== -1, true);
+            assert.equal(err.toString().indexOf('unexpected expression type k') !== -1, true);
         }
     });
 
@@ -268,6 +268,30 @@ describe('interpreter', () => {
             run(
                 getJson(
                     add(3, 4)
+                )
+            ), 7
+        );
+    });
+
+    it('get function', () => {
+        let run = interpreter({
+            getMath: () => {
+                return {
+                    add: (x, y) => x + y
+                };
+            },
+            get: (m, k) => {
+                return m[k];
+            }
+        });
+
+        let getMath = c.require('getMath');
+        let get = c.require('get');
+
+        assert.equal(
+            run(
+                getJson(
+                    get(getMath(), 'add')(3, 4)
                 )
             ), 7
         );

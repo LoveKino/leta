@@ -1,6 +1,6 @@
 {
   "name": "leta",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "lambda json parser and interpreter",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/LoveKino/leta#readme",
   "dependencies": {
-    "basetype": "^0.1.2",
-    "bolzano": "0.0.3",
-    "jsenhance": "0.0.2"
+    "basetype": "^0.1.4",
+    "bolzano": "^0.1.0",
+    "jsenhance": "0.0.3"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",

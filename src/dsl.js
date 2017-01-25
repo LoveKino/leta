@@ -3,6 +3,14 @@
 /**
  * dsl used to contruct lambda json
  *
+ * ח based on predicates and json expansion
+ *
+ * e ::= json                    as meta data, also a pre-defined π expression
+ *   |   x                       variable
+ *   |   predicate               predicate is a pre-defined abstraction
+ *   |   חx.e                    abstraction
+ *   |   e1e2                    application
+ *
  * ## translate lambda to json
  *
  * 1. meta data
@@ -61,14 +69,24 @@
  */
 
 let {
-    map
+    map, contain
 } = require('bolzano');
 
 let {
-    isFunction
+    isFunction, likeArray, funType
 } = require('basetype');
 
 let unique = {};
+
+const EXPRESSION_PREFIXES = ['a', 'p', 'f', 'v', 'd', 'l'];
+const [
+    APPLICATION_PREFIX,
+    PREDICATE_PREFIX,
+    PREDICATE_VARIABLE_PREFIX,
+    VARIABLE_PREFIX,
+    META_DATA_PREFIX,
+    ABSTRACTION_PREFIX
+] = EXPRESSION_PREFIXES;
 
 /**
  * get expression
@@ -76,7 +94,7 @@ let unique = {};
 let exp = (json) => {
     // application
     let e = (...args) => {
-        return exp(['a', getJson(e), map(args, getJson)]);
+        return exp([APPLICATION_PREFIX, getJson(e), map(args, getJson)]);
     };
     e.unique = unique;
     e.json = json;
@@ -91,10 +109,10 @@ let requirePredicate = (name = '') => {
         /**
          * predicate
          */
-        return exp(['p', name.trim(), map(args, getJson)]);
+        return exp([PREDICATE_PREFIX, name.trim(), map(args, getJson)]);
     };
     predicate.unique = unique;
-    predicate.json = ['f', name];
+    predicate.json = [PREDICATE_VARIABLE_PREFIX, name];
 
     return predicate;
 };
@@ -104,20 +122,82 @@ let requirePredicate = (name = '') => {
  *
  * TODO type
  */
-let v = (name) => exp(['v', name]);
+let v = (name) => exp([VARIABLE_PREFIX, name]);
 
 /**
  * e → חx₁x₂...x . e
  */
-let r = (...args) => exp(['l', args.slice(0, args.length - 1), getJson(args[args.length - 1])]);
+let r = (...args) => exp([ABSTRACTION_PREFIX, args.slice(0, args.length - 1), getJson(args[args.length - 1])]);
 
 let isExp = v => isFunction(v) && v.unique === unique;
 
-let getJson = (e) => isExp(e) ? e.json : ['d', e];
+let getJson = (e) => isExp(e) ? e.json : [META_DATA_PREFIX, e];
+
+let getExpressionType = funType((json) => {
+    let type = json[0];
+    if (!contain(EXPRESSION_PREFIXES, type)) {
+        throw new Error(`unexpected expression type ${json[0]}. The context json is ${JSON.stringify(json, null, 4)}`);
+    }
+    return type;
+}, [likeArray]);
+
+let desctruct = (json) => {
+    let type = getExpressionType(json);
+
+    switch (type) {
+        case META_DATA_PREFIX:
+            return {
+                type,
+                metaData: json[1]
+            };
+        case VARIABLE_PREFIX:
+            return {
+                type,
+                variableName: json[1]
+            };
+        case ABSTRACTION_PREFIX:
+            return {
+                abstractionArgs: json[1],
+                abstractionBody: json[2],
+                type,
+            };
+        case PREDICATE_PREFIX:
+            return {
+                predicateName: json[1],
+                predicateParams: json[2],
+                type,
+            };
+        case APPLICATION_PREFIX:
+            return {
+                applicationFun: json[1],
+                applicationParams: json[2],
+                type
+            };
+        case PREDICATE_VARIABLE_PREFIX:
+            return {
+                type,
+                predicateName: json[1]
+            };
+    }
+};
 
 module.exports = {
     require: requirePredicate,
+    method: requirePredicate,
     r,
     v,
-    getJson
+    getJson,
+
+    getExpressionType,
+
+    APPLICATION_PREFIX,
+    PREDICATE_PREFIX,
+    PREDICATE_VARIABLE_PREFIX,
+    VARIABLE_PREFIX,
+    META_DATA_PREFIX,
+    ABSTRACTION_PREFIX,
+
+    EXPRESSION_PREFIXES,
+
+    desctruct
 };

@@ -141,7 +141,7 @@ let getExpressionType = funType((json) => {
     return type;
 }, [likeArray]);
 
-let desctruct = (json) => {
+let destruct = (json) => {
     let type = getExpressionType(json);
 
     switch (type) {
@@ -199,5 +199,5 @@ module.exports = {
 
     EXPRESSION_PREFIXES,
 
-    desctruct
+    destruct
 };

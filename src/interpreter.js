@@ -20,7 +20,7 @@ let {
     META_DATA_PREFIX,
     ABSTRACTION_PREFIX,
 
-    desctruct
+    destruct
 } = require('./dsl');
 
 /**
@@ -75,7 +75,7 @@ module.exports = (predicateSet) => {
 
                 applicationFun,
                 applicationParams
-            } = desctruct(json);
+            } = destruct(json);
 
             switch (type) {
                 case META_DATA_PREFIX: // meta data

@@ -64,4 +64,18 @@ describe('dsl', () => {
             ]
         ]);
     });
+
+    it('require more', () => {
+        let [add, mul] = c.require('add', 'mul');
+
+        assert.deepEqual(getJson(
+            mul(add(1, 2), 3)
+        ), ['p', 'mul', [
+            ['p', 'add', [
+                ['d', 1],
+                ['d', 2]
+            ]],
+            ['d', 3]
+        ]]);
+    });
 });

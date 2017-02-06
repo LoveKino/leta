@@ -104,7 +104,15 @@ let exp = (json) => {
 /**
  * import predicate
  */
-let requirePredicate = (name = '') => {
+let requirePredicate = (...args) => {
+    if (args.length > 1) {
+        return map(args, genPredicate);
+    } else {
+        return genPredicate(args[0]);
+    }
+};
+
+let genPredicate = (name = '') => {
     let predicate = (...args) => {
         /**
          * predicate
@@ -115,6 +123,7 @@ let requirePredicate = (name = '') => {
     predicate.json = [PREDICATE_VARIABLE_PREFIX, name];
 
     return predicate;
+
 };
 
 /**

@@ -208,5 +208,7 @@ module.exports = {
 
     EXPRESSION_PREFIXES,
 
-    destruct
+    destruct,
+
+    exp
 };
